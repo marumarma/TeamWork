@@ -11,3 +11,4 @@ function CreateIndivid(){
 function CreatePopulation(){
     
 }
+let abcd = 123
