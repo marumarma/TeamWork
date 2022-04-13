@@ -1,434 +1,452 @@
-//current version traces path backwards through to start Node.
+var isGenerated = false;
+var startSelecting = false;
+var finishSelecting = false;
+var wallbuilder = false;
+console.log("Круто, все работает, я верно написала src!!!!!");
+// tr = table rows
+// td = table data
+function generate() {
+    if (!isGenerated) {
+        var size = document.getElementById('size').value;
+        var table = document.createElement('table');
+        table.className = "table";
+        var tbody = document.createElement('tbody');
+        table.appendChild(tbody);
 
-//this would normally be split across multiple files, however for ease of use with codepen, I decided to place all of it here. 
+        document.getElementById('body').appendChild(table);
 
-//создание контекста для рисования 
-var gCanvas = document.getElementById("gCanvas");
-var gCanvasOffset;
-var gctx = gCanvas.getContext("2d");
-var CANVAS_WIDTH = gCanvas.width;
-var CANVAS_HEIGHT = gCanvas.height;
-var NODESIZE = 20;
+        for (var i = 0; i < size; i ++) {
+            var row = document.createElement('tr');
+            for (var j = 0; j < size; j ++) {
+                var cell = document.createElement('td');
+                row.appendChild(cell);
+                cell.id = i + " " + j;
+                cell.setAttribute("xC", i);
+                cell.setAttribute("yC", j);
+                cell.className = "walkable"; //проходимость
+            }
 
+            table.appendChild(row);
+        }
+        isGenerated = true;
+        let cells = document.querySelectorAll('td');
+        cells.forEach(function (element) {
+            element.onclick = function() {
+                if (startSelecting) {
+                    element.className = "startik walkable";
+                    startSelecting = false;
+                }
+                else if (finishSelecting) {
+                    element.className = "finishik walkable";
+                    var button = document.getElementById("selectfinish");
+                    finishSelecting = false;
+                }
+                else if (wallbuilder && element.classList.contains("walkable")) {
+                    element.className = "unwalkable";
+                }
+                else if (wallbuilder && element.classList.contains("unwalkable")) {
+                    element.className = "walkable";
+                }
+            }
+        });
 
-var path;
+        console.log("Table is generated.")
+    }
+    else {
+        alert('Maze is already generated!');
+    }
+}
 
-var openSet = new Set();
-var closedSet = new Set();
-var gridPointsByPos = [];
-var gridPoints = [];
+function selectStart() {
+    if (isGenerated) {
+        startSelecting = true;
+        finishSelecting = false;
+        wallbuilder = false;
+        console.log("StartSelectingMode is on.");
+    }
+    else {
+        alert('Mase is not generater yet!');
+    }
+}
+function selectFinish() {
+    if (isGenerated) {
+        startSelecting = false;
+        finishSelecting = true;
+        wallbuilder = false;
+        console.log("FinishSelectingMode is on.");
+    }
+    else {
+        alert('Mase is not generater yet!');
+    }
+}
 
-var wallSet = new Set;
+function wallBuilder() {
+    if (isGenerated) {
+        startSelecting = false;
+        finishSelecting = false;
+        wallbuilder = true;
+        console.log("WallBuilderMode is on.");
+    }
+    else {
+        alert('Mase is not generated yet!');
+    }
+}
 
-//хранение начальной и конечной точки до сброса 
-var startPoint;
-var endPoint;
+// источник алгоритма:https://habr.com/ru/post/262345/
+function GenerateMaze() {
+    var size = document.getElementById('size').value;
+    var matrix = new Array(size);
+    var visited = new Array(size);
+    for (let i = 0; i < size; i ++) {
+        matrix[i] = [];
+        visited[i] = [];
+        for (let j = 0; j < size; j ++) {
+            visited[i][j] = false;
+            var cur = document.getElementById(i + " " + j);
+            if ((i+1) % 2 == 0 && (j+1) % 2 == 0)  {
+                cur.className = "walkable";
+            }
+            else{
+                cur.className = "unwalkable";
+            }
+            matrix[i][j] = cur;
+        }
+    }
 
-var mode = null;
+    let x = rand(0, size / 2-1) * 2 + 1 ;
+    let y = rand(0, size / 2-1) * 2 + 1;
+  
+    console.log(x, y);
+    console.log(matrix[x][y]);
 
-//любая точка задается вотаквот
-class Vec2 {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
+    function dir(matrix, x, y, size, visited) {
+        console.log(1);
+        matrix[x][y].className = "walkable";
+        visited[x][y] = true;
+        var directions = ["north", "south", "east", "west"];
+        while (directions.length > 0) {
+            var dindex = rand(0, directions.length-1);
+            switch (directions[dindex]) {
+                case "north" :
+                    console.log(2);
+                    if ((y - 2 >= 0) && matrix[x][y-2].classList.contains("walkable") && visited[x][y-2] == false) {
+                        matrix[x][y-1].className = "walkable";
+                        console.log(matrix[x][y-2]);
+                        dir(matrix, x, y - 2, size, visited);
+                    }
+                    directions.splice(dindex, 1);
+                break;
+                case "south" :
+                    console.log(2);
+                    if (y + 2 < size && matrix[x][y+2].classList.contains("walkable") && visited[x][y+2] == false) {
+                        matrix[x][y+1].className = "walkable";
+                        console.log(matrix[x][y+2]);
+                        dir(matrix, x, y + 2, size, visited);
+                    }
+                    directions.splice(dindex, 1);
+                break;
+                case "east" :
+                    console.log(2);
+                    if (x - 2 >= 0 && matrix[x-2][y].classList.contains("walkable") && visited[x - 2][y] == false) {
+                        matrix[x-1][y].className = "walkable";
+                        console.log(matrix[x-2][y]);
+                        dir(matrix, x - 2, y, size, visited);
+                    }
+                    directions.splice(dindex, 1);
+                break;
+                case "west" :
+                    console.log(2);
+                    if (x + 2 < size && matrix[x+2][y].classList.contains("walkable") && visited[x + 2][y] == false) {
+                        matrix[x+1][y].className = "walkable";
+                        console.log(matrix[x+2][y]);
+                        dir(matrix, x + 2, y, size, visited);
+                    }
+                    directions.splice(dindex, 1);
+                break;
+            }
+            
+        }
+    }
+
+    dir(matrix, x, y, size, visited);
 }
 
 
-gCanvasOffset = new Vec2(gCanvas.offsetLeft, gCanvas.offsetTop);
 
 
-startPoint = new Vec2(40, 80);
-endPoint = new Vec2(100, 400);
+var openList = [];
+var closedList = [];
 
-class Node {
-//хз че тут происходит помогите пж
-  constructor(id, size, posx, posy, walkable) {
-    var F;
-
-    var parent;
-    this.inPath = false;
-    this.getGCost = this.getValueG;
-    this.getHCost = this.getValueH;
-
-    this.size = size;
-    this.posx = posx;
-    this.posy = posy;
-    this.walkable = walkable;
-
-    this.id = id;
-
-  }
-// создание старта и финиша
-  createStartNode() {
-    nodeDrawer(gctx, this, 2, "black", "blue");
-
-  }
-  createEndNode() {
-    nodeDrawer(gctx, this, 2, "black", "red");
-
-  }
-  toggleWalkable() {
-    this.walkable = !this.walkable;
-  }
-  getValueF() {
-    //this is a problem
-    var fValue = (this.getValueH()) + (this.getValueG());
-
-    return (fValue);
-  }
-  getValueH() {
-    var endNodePosition = {
-      posx: endPoint.x,
-      posy: endPoint.y
-    };
-
-    return (getDistance(this, endNodePosition));
-
-  }
-  getValueG() {
-    var startPointPosition = {
-      posx: endPoint.x,
-      posy: endPoint.y
-    };
-    return (getDistance(this, startPointPosition));
-  }
-  createWall() {
-    nodeDrawer(gctx, this, 2, "black", "black");
-
-  }
-  drawOpenNode() {
-    nodeDrawer(gctx, this, 2, "black", "green");
-
-  }
-  drawClosedNode() {
-    nodeDrawer(gctx, this, 2, "black", "pink");
-  }
-  drawPath() {
-    nodeDrawer(gctx, this, 2, "black", "purple");
-  }
-  drawNode() {
-
-    gctx.beginPath();
-    gctx.lineWidth = "2";
-    gctx.strokeStyle = "black";
-    gctx.fillStyle = "white";
-    gctx.fillRect(this.posx, this.posy, this.size, this.size);
-    gctx.rect(this.posx, this.posy, this.size, this.size);
-    gctx.closePath();
-    gctx.stroke();
-    if (this.inPath === true) {
-      this.drawPath();
-    }
-    if (this.walkable === false) {
-
-      this.createWall();
-      return;
-    }
-    if (this.posx == startPoint.x && this.posy == startPoint.y) {
-      console.log("hit the startNode");
-      this.createStartNode();
-      return;
-    }
-    if (this.posx == endPoint.x && this.posy == endPoint.y) {
-      this.createEndNode();
-
-    }
-
-  }
+function manhattanDistance(a, b){
+    let x = Math.abs(a.x - b.x);
+    let y = Math.abs(a.y - b.y);
+    let summa  = x + y;
+    return summa * 10;
 }
 
-class PathFindingAlg {
-  constructor(grid, startNode, endNode) {
-    this.grid = grid;
-    this.startNode = gridPointsByPos[startNode.x][startNode.y];
-    this.endNode = gridPointsByPos[endNode.x][endNode.y];
-    this.currentNode = null;
-
-    this.openSet = [];
-    this.closedset = [];
-  }
-  findPath() {
-    openSet.clear();
-    closedSet.clear();
-
-    var grid = this.grid; //the grid we're working with
-
-    var currentNode = this.startNode; // the currentNode, defaults to start node for now
-
-    var endNode = gridPoints[this.endNode]; //the target node
-    var startNode = gridPoints[this.startNode];
-
-    var tempArray;
-
-    var newMovementCost; //the new movement cost to neighbor
-
-    openSet.add(gridPoints[currentNode]);
-    console.log('begin');
-    while (openSet.size > 0) {
-      tempArray = Array.from(openSet);
-
-      currentNode = tempArray[0];
-
-      for (var i = 1; i < tempArray.length; i++) {
-        //this if statement is solely to build the starting walls.
-        if (tempArray[i].getValueF() < currentNode.getValueF() || tempArray[i].getValueF() == currentNode.getValueF() && tempArray[i].getValueH() < currentNode.getValueH()) {
-          currentNode = tempArray[i]; //sets the currentNode to openSetI if it has a lower F value, or an = F value with a lower HCost.
-
-        }
-      }
-
-      //exits for loop with either lowest F value or combined H value and F value
-
-      openSet.delete(currentNode);
-
-      currentNode.drawClosedNode();
-
-      closedSet.add(currentNode);
-
-      //might need to put this after getNighbors.... then replace closedSet.hasIn(neighborNode with currentNode
-      if (currentNode.id == startNode.id) {
-        currentNode.drawNode();
-      }
-      if (currentNode.id == endNode.id) {
-        currentNode.drawNode();
-      }
-      if (currentNode.walkable == false) {
-        currentNode.drawNode();
-      }
-
-      if (currentNode.id == endNode.id) {
-        retracePath(startNode, endNode);
-        //hit the last point, exit's the loop.
-
-        return; //exits loop
-      }
-      getNeighbors(currentNode).forEach(function(neighbor) {
-
-        var neighborNode = gridPoints[neighbor];
-        var neighborH = neighborNode.getHCost();
-        var neighborG = neighborNode.getGCost();
-
-        var currentG = currentNode.getGCost();
-        var currentH = currentNode.getHCost();
-
-        if (!neighborNode.walkable || closedSet.has(neighborNode)) {
-
-          return; //acts as a continue, no need to continue if the wall was already checked.
-
-        }
-
-        newMovementCost = currentG + (getDistance(currentNode, neighborNode));
-
-        if (newMovementCost < neighborG || !openSet.has(neighborNode)) {
-
-          neighborNode.gCost = newMovementCost;
-          neighborNode.hCost = neighborH;
-          neighborNode.parent = currentNode;
-
-          if (!openSet.has(neighborNode)) {
-            //push the neighborNode to the openSet, to check against other open values
-            openSet.add(neighborNode);
-
-            neighborNode.drawOpenNode();
-
-          }
-        }
-
-      })
+function getGvalue(current) {
+    if ((current.parent.x == current.x + 1 && current.parent.y == current.y)|| (current.parent.x == current.x - 1 && current.parent.y == current.y)|| (current.parent.y == current.y + 1 && current.parent.x == current.x) || (current.parent.y == current.y - 1 && current.parent.x == current.x)) {
+        return 10;
     }
-
-  }
-
+    else {
+        return 14;
+    }
 }
 
-class Grid {
-  constructor(width, height, posx, posy, gridPoints) {
-    this.width = width;
-    this.height = height;
-    this.posx = posx;
-    this.posy = posy;
-    this.gridPoints = gridPoints;
+function getFvalue(current) {
+    return current.g  + current.h;
+}
 
-  }
-
-  createGrid() {
-    var tempNode;
-    var countNodes = 0;
-    gctx.beginPath();
-    gctx.lineWidth = "1";
-    gctx.strokeStyle = "black";
-    gctx.rect(0, 0, this.width, this.height);
-    gctx.stroke();
-
-    for (var i = 0; i < this.width; i += NODESIZE) {
-      gridPointsByPos[i] = [];
-
-      for (var j = 0; j < this.height; j += NODESIZE) {
-        gridPointsByPos[i][j] = countNodes;
-        //here's the problem , need to set the walkability of the node without always being true...
-        tempNode = new Node(countNodes, NODESIZE, i, j, true);
-        if (countNodes === 53 || countNodes === 93 || countNodes === 133 || countNodes === 173 || countNodes === 213 || countNodes === 253 || countNodes === 293 || countNodes === 333) {
-          tempNode.walkable = false;
-
+function findPath() {
+    var size = document.getElementById('size').value;
+    var m = new Array(size);
+    let openMas = [];
+    let closeMas = [];
+    for (let i = 0; i < size; i++) {
+        m[i] = [];
+        for (let j = 0; j < size; j ++) {
+            m[i][j] = new Cell(document.getElementById(i + " " + j), i, j);
+            if (m[i][j].element.classList.contains("startik")) {
+                var startPoint = m[i][j];
+            }
+            else if (m[i][j].element.classList.contains("finishik")) {
+                var endPoint = m[i][j];
+            }
         }
-        if (wallSet.has(countNodes)) {
-          console.log("wallSet had countNodes!")
-          tempNode.walkable = false;
+    }
+
+    startPoint.g = 0;
+    startPoint.h = manhattanDistance(startPoint, endPoint);
+    startPoint.f = startPoint.g + startPoint.h;
+
+    let currentPoint = startPoint;
+    closeMas.push(currentPoint);
+    openMas.push(currentPoint);
+
+    while (currentPoint.h != 0){
+        closeMas.push(currentPoint);
+        let currentIndex = openMas.indexOf(currentPoint);
+        openMas.splice(currentIndex, 1);
+        let x = currentPoint.x;
+        let y = currentPoint.y;
+
+        let forX = [0, 0, 1, -1, -1, 1, -1, 1];
+        let forY = [-1, 1, 0, 0, -1, -1, 1, 1];
+
+        for (let i = 0; i < 8; i ++){
+            if ((x + forX[i] > -1) && (y + forY[i] > -1) && (x + forX[i] < size) && (y + forY[i] < size)){
+                let newPoint = m[x + forX[i]][y + forY[i]];
+                if (!(closeMas.includes(newPoint)) && (newPoint.element.classList.contains('walkable'))){
+                    if (!(openMas.includes(newPoint))){
+                        newPoint.parent = currentPoint;
+
+                        newPoint.g = newPoint.parent.g + getGvalue(newPoint);
+                        newPoint.h = manhattanDistance(newPoint, endPoint);
+                        newPoint.f = getFvalue(newPoint);
+                        if (!newPoint.element.classList.contains('finishik')) {
+                            newPoint.element.className = "open";
+                        }
+                        openMas.push(newPoint);
+                    }
+
+                    else{
+                        let oldParent = newPoint.parent;
+                        newPoint.parent = currentPoint;
+                        if (!newPoint.element.classList.contains('finishik')) {
+                            newPoint.element.parent.className = "open";
+                        }
+                        let newG = currentPoint.g + getGvalue(newPoint);
+                        if (newG < newPoint.g){
+                            newPoint.g = newG;
+                            newPoint.f = getFvalue(newPoint);
+                        }
+                        else{
+                            newPoint.parent = oldParent;
+                        }
+
+                    }
+                }
+            }
         }
 
-        tempNode.drawNode();
-        tempNode.F = tempNode.getValueF();
-        gridPoints.push(tempNode);
+        let points = [];
 
-        countNodes++;
+        if (openMas.length == 0) {
+            alert("No path!");
+        }
+        
+        for (let i = 0; i < openMas.length; i ++){
+            points[i] = {
+                nucleus: openMas[i],
+                f: openMas[i].f,
+            }
+        }
 
-      }
+        points.sort(function (a, b) {
+            return a.f - b.f;
+        })
+
+        currentPoint = points[0].nucleus;
+    }
+    
+    let finalArray = new Array ();
+
+    let cou = 0;
+
+    while (currentPoint.parent.parent != null){
+        finalArray.push(currentPoint);
+        document.getElementById(currentPoint.parent.x + " " + currentPoint.parent.y).className = "path";
+        console.log('x:',currentPoint.parent.x, 'y:', currentPoint.parent.y);
+        currentPoint = currentPoint.parent; 
+        cou += 1;   
     }
 
-  }
-}
-//the grid will be the exact size of the canvas
-//the top left corner of the grid will be located at point 0,0 to fill the canvas
-var grid = new Grid(CANVAS_WIDTH, CANVAS_HEIGHT, 0, 0);
-grid.createGrid();
-
-var myPath = new PathFindingAlg(grid, startPoint, endPoint);
-//distance from a node to  another node
-function getDistance(nodeA, nodeB) {
-  var distX = Math.abs(nodeA.posx - nodeB.posx);
-  var distY = Math.abs(nodeA.posy - nodeB.posy);
-
-  if (distX > distY) {
-    return ((14 * distY) + (10 * (distX - distY)))
-
-  }
-  return (14 * distX + (10 * (distY - distX)));
-}
-
-function retracePath(startNode, endNode) {
-  path = new Set();
-  var currentNode = endNode;
-  var reverseArray;
-  while (currentNode != startNode) {
-    path.add(currentNode);
-    currentNode = currentNode.parent;
-    currentNode.inPath = true;
-    if (currentNode != startNode)
-      currentNode.drawPath();
-  }
-
-  reverseArray = Array.from(path);
-
-  reverseArray.reverse();
-  path = new Set(reverseArray);
-
-}
-//list of neighbors
-function getNeighbors(node) {
-  var checkX;
-  var checkY;
-  var neighborList = [];
-  var tempList = [];
-  for (var x = -NODESIZE; x <= NODESIZE; x += NODESIZE) {
-    for (var y = -NODESIZE; y <= NODESIZE; y += NODESIZE) {
-      if (x == 0 && y == 0) {
-        continue;
-      }
-      checkX = node.posx + x;
-      checkY = node.posy + y;
-
-      if (checkX >= 0 && checkX <= CANVAS_WIDTH - NODESIZE && checkY >= 0 && checkY <= CANVAS_HEIGHT - NODESIZE) {
-
-        tempList.push(gridPointsByPos[checkX][checkY]);
-      }
+    if (cou == 0) {
+        alert("No path!")
     }
-  }
-  neighborList = tempList;
 
-  return (neighborList);
+    drawOpen();
 
-}
+}    
 
-
-
-//UI, buttons, and click events/functions
-
-//tells canvas to how to draw the node
-function nodeDrawer(context, target, lineW, strokeS, fillS) {
-  context.beginPath();
-  context.lineWidth = lineW;
-  context.strokeStyle = strokeS;
-  context.fillStyle = fillS;
-  context.fillRect(target.posx, target.posy, target.size, target.size);
-  context.rect(target.posx, target.posy, target.size, target.size);
-  context.closePath();
-  context.stroke();
-}
-//clears the path WITHOUT clearing the walls
-function reset() {
-  gridPoints = []; // resets the gridPoints so that it clears the walls etc. on reset.
-  gridPointsByPos = [];
-  openSet.clear();
-  closedSet.clear();
-  gctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  grid.createGrid();
-
-}
-//resets everything INCLUDING walls
-function resetWalls() {
-
-  wallSet.clear();
-  reset();
-}
-
-//creates the button functions 
-document.getElementById("btnReset").addEventListener("click", function(event) {
-  reset();
-});
-document.getElementById("btnStartPoint").addEventListener("click", function(event) {
-  mode = "startPoint";
-});
-document.getElementById("btnEndPoint").addEventListener("click", function(event) {
-  mode = "endPoint";
-});
-document.getElementById("btnWall").addEventListener("click", function(event) {
-  mode = "wall";
-});
-document.getElementById("wallReset").addEventListener("click", function(event) {
-  resetWalls();
-})
-document.getElementById("btnBeginPathFind").addEventListener("click", function(event) {
-  reset();
-  myPath = new PathFindingAlg(grid, startPoint, endPoint);
-  myPath.findPath();
-});
-//tells the canvas what to do when clicked 
-gCanvas.addEventListener('click', function(event) {
-  var x = event.pageX - $(gCanvas).position().left;
-  var y = event.pageY - $(gCanvas).position().top;
-
-  gridPoints.forEach(function(element) {
-    if (y > element.posy && y < element.posy + element.size && x > element.posx && x < element.posx + element.size) {
-
-      if (mode === "startPoint") {
-
-        startPoint = new Vec2(element.posx, element.posy);
-        reset();
-      } else if (mode === "wall") {
-        //Starting to work out resets without clearning walls, so wallSet doesn't do much yet.
-        wallSet.add(element.id);
-        element.toggleWalkable();
-        element.drawNode();
-
-      } else if (mode === "endPoint") {
-        endPoint = new Vec2((element.posx), (element.posy));
-        reset();
-      } else {
-        alert("You must select a Mode from the list above!")
-      }
-
+function drawOpen(size) {
+    for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+            let cur = document.getElementById(i + " " + j);
+            if (cur.classList.contains("open")) {
+                cur.className = "op";
+            }
+            setTimeout(drawOpen, i * 200, cur);
+        }
     }
-  });
+}
 
-}, false);
+function findmaxPath() {
+    var size = document.getElementById('size').value;
+    var m = new Array(size);
+    let openMas = [];
+    let closeMas = [];
+    for (let i = 0; i < size; i++) {
+        m[i] = [];
+        for (let j = 0; j < size; j ++) {
+            m[i][j] = new Cell(document.getElementById(i + " " + j), i, j);
+            if (m[i][j].element.classList.contains("startik")) {
+                var startPoint = m[i][j];
+            }
+            else if (m[i][j].element.classList.contains("finishik")) {
+                var endPoint = m[i][j];
+            }
+        }
+    }
+
+    startPoint.g = 0;
+    startPoint.h = manhattanDistance(startPoint, endPoint);
+    startPoint.f = startPoint.g + startPoint.h;
+
+    let currentPoint = startPoint;
+    closeMas.push(currentPoint);
+    openMas.push(currentPoint);
+
+    while (currentPoint.h != 0){
+        closeMas.push(currentPoint);
+        let currentIndex = openMas.indexOf(currentPoint);
+        openMas.splice(currentIndex, 1);
+        let x = currentPoint.x;
+        let y = currentPoint.y;
+
+        let forX = [0, 0, 1, -1, -1, 1, -1, 1];
+        let forY = [-1, 1, 0, 0, -1, -1, 1, 1];
+
+        for (let i = 0; i < 8; i ++){
+            if ((x + forX[i] > -1) && (y + forY[i] > -1) && (x + forX[i] < size) && (y + forY[i] < size)){
+                let newPoint = m[x + forX[i]][y + forY[i]];
+                if (!(closeMas.includes(newPoint)) && (newPoint.element.classList.contains('walkable'))){
+                    if (!(openMas.includes(newPoint))){
+                        newPoint.parent = currentPoint;
+
+                        newPoint.g = newPoint.parent.g + getGvalue(newPoint);
+                        newPoint.h = manhattanDistance(newPoint, endPoint);
+                        newPoint.f = getFvalue(newPoint);
+
+                        openMas.push(newPoint);
+                    }
+
+                    else{
+                        let oldParent = newPoint.parent;
+                        newPoint.parent = currentPoint;
+                        let newG = currentPoint.g + getGvalue(newPoint);
+                        if (newG < newPoint.g){
+                            newPoint.g = newG;
+                            newPoint.f = getFvalue(newPoint);
+                        }
+                        else{
+                            newPoint.parent = oldParent;
+                        }
+
+                    }
+                }
+            }
+        }
+
+        let points = [];
+
+        
+        for (let i = 0; i < openMas.length; i ++){
+            points[i] = {
+                nucleus: openMas[i],
+                f: openMas[i].f,
+            }
+        }
+
+        points.sort(function (a, b) {
+            return b.f - a.f;
+        })
+
+        currentPoint = points[0].nucleus;
+    }
+    
+    let finalArray = new Array ();
+
+    while (currentPoint.parent.parent != null){
+        finalArray.push(currentPoint);
+        document.getElementById(currentPoint.parent.x + " " + currentPoint.parent.y).className = "path";
+        console.log('x:',currentPoint.parent.x, 'y:', currentPoint.parent.y);
+        currentPoint = currentPoint.parent;    
+    }
+
+}    
+
+class Cell {
+    constructor(element, x, y, f, g, h) {
+        this.element = element;
+        this.x = x;
+        this.y = y;
+        this.parent = null;
+        this.f = f;
+        this.g = g;
+        this.h = h;
+        this.visited = false;
+    }
+}
+
+class Point {
+    constructor(element, x, y) {
+        this.element = element;
+        this.x = x;
+        this.y = y;
+    }
+}
+
+
+function rand(min, max) {
+    let x = min + Math.random() * (max + 1 - min);
+    return Math.floor(x);
+}
+
+document.getElementById("generate").addEventListener('click', generate);
+document.getElementById("selectstart").addEventListener('click', selectStart);
+document.getElementById("selectfinish").addEventListener('click', selectFinish);
+document.getElementById("walls").addEventListener('click', wallBuilder);
+document.getElementById("generatemaze").addEventListener('click', GenerateMaze);
+document.getElementById("findpath").addEventListener('click', findPath);
+document.getElementById("findmaxpath").addEventListener('click', findmaxPath);
