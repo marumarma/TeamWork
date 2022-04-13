@@ -1,36 +1,25 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <script scr="Astar.js"></script>
+        <meta charset="utf-8">
+        <title >A* algorythm</title>
+        <link rel="stylesheet" href="astarchik.css" type="text/css" media="screen">
+        <script type="module" src="astarchik.js"></script>
     </head>
-    <div class = "container-fluid">
-        <h1>Summary </h1>
+    <body align="center" id="body">
+        <h2 align="center" style="color:#ac516f; font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">A* algorythm</h2>
+        <button class="back"></button>
+        <input type="text" id="size" placeholder="Maze size (5 to 100)">
+        <button class="butt" id="generate">Create empty maze</button>
+        <button class="butt" id="reset" onclick="window.location.reload()">Clear all</button>
+        <button class="butt" id="generatemaze">Create maze</button>
         <p></p>
-        
-        <h1>Explanation</h1>
-      <div class="container-fluid">
-        <div class = "ptb"> Here are the controls to interact with the map. </div>
-        
-        <div class = "row">
-        <div id="btnWall" class = "btn">Wall</div>
-        
-        <div id="btnStartPoint" class = "btn">StartPoint</div>
-        <div id="btnEndPoint" class = "btn">EndPoint</div>
-        <div id="btnBeginPathFind" class = "btn">Begin Path Finding</div>
-          </div>
-        <div class = "row">
-        <div id="btnReset" class = "btn">Clear Path</div>
-      
-      <div id="wallReset" class = "btn">Clear Path and Reset Walls</div>
-      </div>
-      </div>
-      
-         <h2> This is a test game map in the form of a grid. </h2>
-      
-          <[if IE]>
-      <p>Sorry, but this example doesn't run on IE.</p>
-      .<![endif]>
-          <canvas id="gCanvas" width="800" height="800"></canvas>
+        <button class="butt" id="walls">Wall builder</button>
+        <button class="butt" id="selectstart">Select start point</button>
+        <button class="butt" id="selectfinish">Select end point</button>
+        <button class="butt" id="findpath">Find path by A*</button>
+        <p></p>
+        <button class="butt" id="findmaxpath">Бонус: самый длинный путь!</button>
+        <p></p>
+    </body>
 </html>
-
-  
