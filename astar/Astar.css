@@ -1,34 +1,141 @@
-body{
-    background-color:#dfdfdf;
-    margin:0 auto;
-  }
-  
-  .ptb{
-    padding-top:20px;
-    padding-bottom:20px;
-  }
-  .instructions{display:block; 
-  
-  width:800px;
-  position:relative;}
-  
-  .btn{
-    background-color:#eeeeee;
-   
-    padding:10px;
-    position:relative;
-    display:inline-block;
-   
-  }
-  
-  .btn:hover {
-     cursor:pointer;
-    background-color:#11eeff;
-  }
-  
-  .grid_holder{
-    width:800px;
-    margin-top:20px;
-    
-    
-  }
+body {
+    background-image: url(hah.jpg);
+    background-size: 80%;
+    background-position-y: bottom;
+    background-position-x: center;
+    background-repeat: no-repeat;
+    min-height: 569px;
+}
+.container {
+    display: table;
+    margin: 20 px auto;
+}
+
+.table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin: auto ;
+    margin-bottom: 160px;
+}
+
+th, td {
+    padding: 10px 10px;
+    border: 1px solid #db7093;
+
+}
+
+.content {
+    height: 30px;
+    width: 30px;
+}
+
+.back {
+    background: url(point.png);
+    background-size: 90%;
+    padding: 17px 35px;
+    cursor: pointer;
+    background-position-y: bottom;
+    border: 0px;
+    background-repeat: no-repeat;
+}
+
+.back:hover {
+    background: url(point2.png);
+    background-size: 90%;
+    padding: 17px 35px;
+    cursor: pointer;
+    background-position-y: bottom;
+    border: 0px;
+    background-repeat: no-repeat;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+    overflow: hidden;
+}
+
+.butt {
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    color:black;
+    background-color:rgb(255, 255, 255);
+    border: 1px solid pink;
+    padding: 5px 30px;
+    border-radius: 8px;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+    overflow: hidden;
+    cursor: pointer;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.butt:hover{
+    background-color:#db7093;
+    color:white;
+}
+
+.walkable {
+    background-color: #edb5c8;
+}
+
+.walkable:hover {
+    background-color: rgb(181, 180, 180);
+    cursor: pointer;
+}
+
+.walkable:active {
+    background-color: rgb(89, 89, 89);
+    cursor: pointer;
+}
+
+.unwalkable {
+    background-color: black;
+}
+
+.unwalkable:hover {
+    background-color: rgb(181, 180, 180);
+    cursor: pointer;
+}
+
+.unwalkable:active {
+    background-color: rgb(89, 89, 89);
+    cursor: pointer;
+}
+
+.startik {
+    background-color: #db5454;
+}
+
+.startik:hover {
+    background-color: rgb(163, 34, 34);
+    cursor: pointer;
+}
+
+.startik:active {
+    background-color: rgb(89, 89, 89);
+    cursor: pointer;
+}
+
+.finishik {
+    background-color: #44c74b;
+}
+
+.finishik:hover {
+    background-color: rgb(24, 108, 24);
+    cursor: pointer;
+}
+
+.finishik:active {
+    background-color: rgb(89, 89, 89);
+    cursor: pointer;
+}
+
+.path {
+    background-color: #db7093;
+}
+
+.open {
+    background-color: #dc215f;
+}
+.op {
+    background-color: aquamarine;
+}
